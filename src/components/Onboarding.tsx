@@ -52,6 +52,8 @@ export const Onboarding = ({ onComplete }: { onComplete: () => void }) => {
 
   if (!isVisible) return null;
 
+  const CurrentIcon = steps[currentStep].icon;
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <Card className="max-w-lg w-full">
@@ -72,11 +74,9 @@ export const Onboarding = ({ onComplete }: { onComplete: () => void }) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
-            {steps[currentStep].icon && (
-              <div className="p-3 rounded-full bg-primary/10 text-primary">
-                <steps[currentStep].icon className="w-6 h-6" />
-              </div>
-            )}
+            <div className="p-3 rounded-full bg-primary/10 text-primary">
+              <CurrentIcon className="w-6 h-6" />
+            </div>
             <div className="flex-1">
               <h3 className="font-semibold text-lg">{steps[currentStep].title}</h3>
               <p className="text-muted-foreground">{steps[currentStep].description}</p>
