@@ -1,6 +1,4 @@
-
 import { useEffect, useState } from "react";
-import { GoogleLogin } from "@react-oauth/google";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -114,16 +112,16 @@ const Index = () => {
               timeaify
             </h1>
             {!isAuthenticated && (
-              <GoogleLogin
-                onSuccess={handleLoginSuccess}
-                onError={() => {
+              <Button 
+                onClick={() => {
                   toast({
-                    title: "Login failed",
-                    description: "Please try again",
-                    variant: "destructive",
+                    title: "Google Sign-In Temporarily Disabled",
+                    description: "Please configure your Google Client ID first",
                   });
                 }}
-              />
+              >
+                Sign in with Google
+              </Button>
             )}
           </header>
 
@@ -295,4 +293,3 @@ const Index = () => {
 };
 
 export default Index;
-
