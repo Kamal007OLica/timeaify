@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Timer, Focus, Lock, History } from "lucide-react";
+import { Onboarding } from "@/components/Onboarding";
 
 interface FocusSession {
   startTime: Date;
@@ -18,6 +19,7 @@ interface FocusSession {
 
 const Index = () => {
   const { toast } = useToast();
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [timeData, setTimeData] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
@@ -38,6 +40,21 @@ const Index = () => {
     { time: '14:00', productivity: 90, activity: 'Development', duration: 50 },
     { time: '15:00', productivity: 85, activity: 'Code Review', duration: 40 },
   ];
+
+  useEffect(() => {
+    const onboardingComplete = localStorage.getItem("onboardingComplete");
+    if (!onboardingComplete) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    toast({
+      title: "Welcome to Timeaify!",
+      description: "Press Ctrl+F anytime to start a focus session.",
+    });
+  };
 
   const handleLoginSuccess = (response: any) => {
     setIsAuthenticated(true);
@@ -131,6 +148,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
       {isFocusMode && (
         <div className="fixed top-0 left-0 w-full z-50 px-4 py-2 bg-gray-900/80 backdrop-blur-sm hover:bg-gray-900/90 transition-all duration-200">
           <div className="max-w-md mx-auto">
