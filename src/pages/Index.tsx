@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -147,7 +147,7 @@ const Index = () => {
   }, [isFocusMode, focusDuration]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
       {isFocusMode && (
         <div className="fixed top-0 left-0 w-full z-50 px-4 py-2 bg-gray-900/80 backdrop-blur-sm hover:bg-gray-900/90 transition-all duration-200">
@@ -160,49 +160,48 @@ const Index = () => {
         </div>
       )}
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col gap-8">
-          {/* Header Section */}
-          <header className="flex items-center justify-between">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">
-              timeaify
-            </h1>
-            {!isAuthenticated && (
-              <Button 
+      <div className="container mx-auto p-4 h-screen">
+        <header className="flex items-center justify-between mb-6">
+          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            timeaify
+          </h1>
+          {!isAuthenticated && (
+            <Button 
+              onClick={() => {
+                toast({
+                  title: "Google Sign-In Temporarily Disabled",
+                  description: "Please configure your Google Client ID first",
+                });
+              }}
+              className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+            >
+              Sign in with Google
+            </Button>
+          )}
+        </header>
+
+        <div className="grid grid-cols-2 gap-6 h-[calc(100vh-8rem)]">
+          <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <Focus className="h-5 w-5 text-purple-500" />
+                Focus Mode
+              </h2>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => {
                   toast({
-                    title: "Google Sign-In Temporarily Disabled",
-                    description: "Please configure your Google Client ID first",
+                    title: "Focus Mode Shortcut",
+                    description: "Press Ctrl+F to toggle focus mode from anywhere",
                   });
                 }}
               >
-                Sign in with Google
+                Ctrl+F
               </Button>
-            )}
-          </header>
+            </div>
 
-          {/* Focus Mode Controls */}
-          <Card className="p-6 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-                  <Focus className="h-5 w-5" />
-                  Focus Mode Settings
-                </h2>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    toast({
-                      title: "Focus Mode Shortcut",
-                      description: "Press Ctrl+F to toggle focus mode from anywhere",
-                    });
-                  }}
-                >
-                  Ctrl+F
-                </Button>
-              </div>
-
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -213,7 +212,7 @@ const Index = () => {
                   <Label htmlFor="focus-mode">Enable Focus Mode</Label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Timer className="h-5 w-5" />
+                  <Timer className="h-5 w-5 text-purple-500" />
                   <Input
                     type="number"
                     value={focusDuration}
@@ -222,15 +221,14 @@ const Index = () => {
                     min={1}
                     max={120}
                   />
-                  <span className="text-sm text-gray-500">minutes</span>
+                  <span className="text-sm text-gray-500">min</span>
                 </div>
               </div>
 
-              {/* Block Apps & Websites */}
-              <div className="mt-4">
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Lock className="h-5 w-5" />
-                  <h3 className="text-lg font-semibold">Block Apps & Websites</h3>
+                  <Lock className="h-5 w-5 text-purple-500" />
+                  <h3 className="text-lg font-semibold">Block List</h3>
                 </div>
                 <div className="flex gap-2">
                   <Input
@@ -240,87 +238,19 @@ const Index = () => {
                   />
                   <Button onClick={addBlockItem}>Add</Button>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Blocked Apps</h4>
-                    <ul className="space-y-1">
-                      {blockedApps.map((app) => (
-                        <li key={app} className="text-sm text-gray-600 dark:text-gray-400">
-                          {app}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Blocked Websites</h4>
-                    <ul className="space-y-1">
-                      {blockedWebsites.map((site) => (
-                        <li key={site} className="text-sm text-gray-600 dark:text-gray-400">
-                          {site}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* Focus Sessions Log */}
-              <div className="mt-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <History className="h-5 w-5" />
-                  <h3 className="text-lg font-semibold">Focus Sessions Log</h3>
-                </div>
-                <div className="max-h-60 overflow-y-auto space-y-2">
-                  {focusSessions.map((session, index) => (
-                    <div key={index} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                      <p className="text-sm font-medium">
-                        Session {focusSessions.length - index}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Duration: {Math.round(session.duration)} minutes
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Start: {session.startTime.toLocaleTimeString()}
-                      </p>
-                      {session.endTime && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          End: {session.endTime.toLocaleTimeString()}
-                        </p>
-                      )}
-                      {session.blockedAttempts.length > 0 && (
-                        <div className="mt-2">
-                          <p className="text-sm font-medium">Blocked Attempts:</p>
-                          <ul className="text-sm text-gray-600 dark:text-gray-400">
-                            {session.blockedAttempts.map((attempt, i) => (
-                              <li key={i}>
-                                {attempt.app} at {attempt.timestamp.toLocaleTimeString()}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           </Card>
 
-          {/* Timeline Section */}
-          <Card className="col-span-2 p-6 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-              Productivity Timeline
-            </h2>
-            <div className="h-[300px]">
+          <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6">
+            <h2 className="text-xl font-semibold mb-4">Productivity Timeline</h2>
+            <div className="h-[calc(100%-2rem)]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={mockTimeData}
-                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                >
+                <BarChart data={mockTimeData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="time" />
                   <YAxis />
-                  <Tooltip 
+                  <Tooltip
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
@@ -336,64 +266,54 @@ const Index = () => {
                       return null;
                     }}
                   />
-                  <Area
-                    type="monotone"
+                  <Bar
                     dataKey="productivity"
-                    stroke="#8884d8"
                     fill="#8884d8"
-                    fillOpacity={0.3}
+                    radius={[4, 4, 0, 0]}
                   />
-                </AreaChart>
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </Card>
 
-          {/* Spotify Section */}
-          <Card className="p-6 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-              Now Playing
-            </h2>
-            <div className="w-full">
-              <iframe
-                src="https://open.spotify.com/embed/playlist/37i9dQZF1DX5trt9i14X7j"
-                width="100%"
-                height="380"
-                frameBorder="0"
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                className="rounded-lg"
-              ></iframe>
+          <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <History className="h-5 w-5 text-purple-500" />
+              <h2 className="text-xl font-semibold">Focus Sessions</h2>
+            </div>
+            <div className="h-[calc(100%-4rem)] overflow-y-auto space-y-2">
+              {focusSessions.map((session, index) => (
+                <div key={index} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                  <p className="text-sm font-medium">
+                    Session {focusSessions.length - index}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Duration: {Math.round(session.duration)} minutes
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Start: {session.startTime.toLocaleTimeString()}
+                  </p>
+                  {session.endTime && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      End: {session.endTime.toLocaleTimeString()}
+                    </p>
+                  )}
+                </div>
+              ))}
             </div>
           </Card>
 
-          {/* Activity Summary */}
-          <Card className="col-span-2 p-6 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-              Top Applications
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+          <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6">
+            <h2 className="text-xl font-semibold mb-4">Top Applications</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 rounded-lg bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
                 <h3 className="font-medium text-purple-700 dark:text-purple-300">VS Code</h3>
                 <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">2h 15m</p>
               </div>
-              <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+              <div className="p-4 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
                 <h3 className="font-medium text-blue-700 dark:text-blue-300">Chrome</h3>
                 <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">1h 45m</p>
               </div>
-            </div>
-          </Card>
-
-          {/* Spotify Controls */}
-          <Card className="p-6 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-              Quick Controls
-            </h2>
-            <div className="flex flex-col gap-2">
-              <Button className="w-full" variant="outline">
-                Previous Track
-              </Button>
-              <Button className="w-full" variant="outline">
-                Next Track
-              </Button>
             </div>
           </Card>
         </div>
