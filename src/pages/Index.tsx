@@ -7,7 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Timer, Focus, Lock } from "lucide-react";
+import { Timer, Focus, Lock, History } from "lucide-react";
+
+interface FocusSession {
+  startTime: Date;
+  endTime?: Date;
+  duration: number;
+  blockedAttempts: { app: string; timestamp: Date }[];
+}
 
 const Index = () => {
   const { toast } = useToast();
@@ -19,6 +26,8 @@ const Index = () => {
   const [blockedApps, setBlockedApps] = useState<string[]>([]);
   const [blockedWebsites, setBlockedWebsites] = useState<string[]>([]);
   const [newBlockItem, setNewBlockItem] = useState("");
+  const [focusSessions, setFocusSessions] = useState<FocusSession[]>([]);
+  const [currentSession, setCurrentSession] = useState<FocusSession | null>(null);
 
   const mockTimeData = [
     { time: '09:00', productivity: 65, activity: 'Coding', duration: 55 },
@@ -40,6 +49,12 @@ const Index = () => {
 
   const toggleFocusMode = () => {
     if (!isFocusMode) {
+      const newSession: FocusSession = {
+        startTime: new Date(),
+        duration: 0,
+        blockedAttempts: [],
+      };
+      setCurrentSession(newSession);
       setFocusProgress(0);
       setIsFocusMode(true);
       toast({
@@ -47,13 +62,28 @@ const Index = () => {
         description: `Starting ${focusDuration} minute focus session`,
       });
     } else {
-      setIsFocusMode(false);
-      setFocusProgress(0);
-      toast({
-        title: "Focus Mode Deactivated",
-        description: "Great work on staying focused!",
-      });
+      endFocusSession();
     }
+  };
+
+  const endFocusSession = () => {
+    if (currentSession) {
+      const endTime = new Date();
+      const duration = (endTime.getTime() - currentSession.startTime.getTime()) / 1000 / 60; // in minutes
+      const completedSession: FocusSession = {
+        ...currentSession,
+        endTime,
+        duration,
+      };
+      setFocusSessions([...focusSessions, completedSession]);
+      setCurrentSession(null);
+    }
+    setIsFocusMode(false);
+    setFocusProgress(0);
+    toast({
+      title: "Focus Mode Deactivated",
+      description: "Great work on staying focused!",
+    });
   };
 
   const addBlockItem = () => {
@@ -70,6 +100,18 @@ const Index = () => {
   };
 
   useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key.toLowerCase() === 'f') {
+        e.preventDefault(); // Prevent default browser find
+        toggleFocusMode();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [isFocusMode]);
+
+  useEffect(() => {
     let interval: number;
     if (isFocusMode) {
       interval = window.setInterval(() => {
@@ -77,11 +119,7 @@ const Index = () => {
           const newProgress = prev + (100 / (focusDuration * 60));
           if (newProgress >= 100) {
             clearInterval(interval);
-            setIsFocusMode(false);
-            toast({
-              title: "Focus Session Complete!",
-              description: "Well done on completing your focus session.",
-            });
+            endFocusSession();
             return 0;
           }
           return newProgress;
@@ -89,7 +127,7 @@ const Index = () => {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isFocusMode, focusDuration, toast]);
+  }, [isFocusMode, focusDuration]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -128,10 +166,25 @@ const Index = () => {
           {/* Focus Mode Controls */}
           <Card className="p-6 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl">
             <div className="flex flex-col gap-4">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
-                <Focus className="h-5 w-5" />
-                Focus Mode Settings
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                  <Focus className="h-5 w-5" />
+                  Focus Mode Settings
+                </h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    toast({
+                      title: "Focus Mode Shortcut",
+                      description: "Press Ctrl+F to toggle focus mode from anywhere",
+                    });
+                  }}
+                >
+                  Ctrl+F
+                </Button>
+              </div>
+
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -155,10 +208,11 @@ const Index = () => {
                 </div>
               </div>
 
+              {/* Block Apps & Websites */}
               <div className="mt-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Lock className="h-5 w-5" />
-                  <h3 className="text 0 font-semibold">Block Apps & Websites</h3>
+                  <h3 className="text-lg font-semibold">Block Apps & Websites</h3>
                 </div>
                 <div className="flex gap-2">
                   <Input
@@ -191,101 +245,139 @@ const Index = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Focus Sessions Log */}
+              <div className="mt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <History className="h-5 w-5" />
+                  <h3 className="text-lg font-semibold">Focus Sessions Log</h3>
+                </div>
+                <div className="max-h-60 overflow-y-auto space-y-2">
+                  {focusSessions.map((session, index) => (
+                    <div key={index} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                      <p className="text-sm font-medium">
+                        Session {focusSessions.length - index}
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Duration: {Math.round(session.duration)} minutes
+                      </p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Start: {session.startTime.toLocaleTimeString()}
+                      </p>
+                      {session.endTime && (
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          End: {session.endTime.toLocaleTimeString()}
+                        </p>
+                      )}
+                      {session.blockedAttempts.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-sm font-medium">Blocked Attempts:</p>
+                          <ul className="text-sm text-gray-600 dark:text-gray-400">
+                            {session.blockedAttempts.map((attempt, i) => (
+                              <li key={i}>
+                                {attempt.app} at {attempt.timestamp.toLocaleTimeString()}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Timeline Section */}
-            <Card className="col-span-2 p-6 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-                Productivity Timeline
-              </h2>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={mockTimeData}
-                    margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="time" />
-                    <YAxis />
-                    <Tooltip 
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          const data = payload[0].payload;
-                          return (
-                            <div className="bg-white p-2 border rounded shadow-lg">
-                              <p className="font-medium">{data.activity}</p>
-                              <p>Time: {data.time}</p>
-                              <p>Duration: {data.duration}min</p>
-                              <p>Productivity: {data.productivity}%</p>
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="productivity"
-                      stroke="#8884d8"
-                      fill="#8884d8"
-                      fillOpacity={0.3}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
+          {/* Timeline Section */}
+          <Card className="col-span-2 p-6 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
+              Productivity Timeline
+            </h2>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={mockTimeData}
+                  margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="time" />
+                  <YAxis />
+                  <Tooltip 
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className="bg-white p-2 border rounded shadow-lg">
+                            <p className="font-medium">{data.activity}</p>
+                            <p>Time: {data.time}</p>
+                            <p>Duration: {data.duration}min</p>
+                            <p>Productivity: {data.productivity}%</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="productivity"
+                    stroke="#8884d8"
+                    fill="#8884d8"
+                    fillOpacity={0.3}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
 
-            {/* Spotify Section */}
-            <Card className="p-6 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-                Now Playing
-              </h2>
-              <div className="w-full">
-                <iframe
-                  src="https://open.spotify.com/embed/playlist/37i9dQZF1DX5trt9i14X7j"
-                  width="100%"
-                  height="380"
-                  frameBorder="0"
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                  className="rounded-lg"
-                ></iframe>
-              </div>
-            </Card>
+          {/* Spotify Section */}
+          <Card className="p-6 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
+              Now Playing
+            </h2>
+            <div className="w-full">
+              <iframe
+                src="https://open.spotify.com/embed/playlist/37i9dQZF1DX5trt9i14X7j"
+                width="100%"
+                height="380"
+                frameBorder="0"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                className="rounded-lg"
+              ></iframe>
+            </div>
+          </Card>
 
-            {/* Activity Summary */}
-            <Card className="col-span-2 p-6 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-                Top Applications
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20">
-                  <h3 className="font-medium text-purple-700 dark:text-purple-300">VS Code</h3>
-                  <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">2h 15m</p>
-                </div>
-                <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20">
-                  <h3 className="font-medium text-blue-700 dark:text-blue-300">Chrome</h3>
-                  <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">1h 45m</p>
-                </div>
+          {/* Activity Summary */}
+          <Card className="col-span-2 p-6 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
+              Top Applications
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+                <h3 className="font-medium text-purple-700 dark:text-purple-300">VS Code</h3>
+                <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">2h 15m</p>
               </div>
-            </Card>
+              <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                <h3 className="font-medium text-blue-700 dark:text-blue-300">Chrome</h3>
+                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">1h 45m</p>
+              </div>
+            </div>
+          </Card>
 
-            {/* Spotify Controls */}
-            <Card className="p-6 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl">
-              <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
-                Quick Controls
-              </h2>
-              <div className="flex flex-col gap-2">
-                <Button className="w-full" variant="outline">
-                  Previous Track
-                </Button>
-                <Button className="w-full" variant="outline">
-                  Next Track
-                </Button>
-              </div>
-            </Card>
-          </div>
+          {/* Spotify Controls */}
+          <Card className="p-6 backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
+              Quick Controls
+            </h2>
+            <div className="flex flex-col gap-2">
+              <Button className="w-full" variant="outline">
+                Previous Track
+              </Button>
+              <Button className="w-full" variant="outline">
+                Next Track
+              </Button>
+            </div>
+          </Card>
         </div>
       </div>
     </div>
