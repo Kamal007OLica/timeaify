@@ -59,3 +59,14 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+@layer utilities {
+  .glass-morphism {
+    @apply backdrop-blur-xl bg-background/50 border border-border shadow-lg;
+  }
+  
+  .text-gradient {
+    @apply bg-gradient-to-br from-primary via-primary/90 to-primary/70 bg-clip-text text-transparent;
+  }
+}
+

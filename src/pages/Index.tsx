@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -136,13 +137,13 @@ const Index = () => {
   }, [isFocusMode, focusDuration]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-background/90 transition-colors duration-300">
       {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
       {isFocusMode && (
-        <div className="fixed top-0 left-0 w-full z-50 px-4 py-2 bg-gray-900/80 backdrop-blur-sm hover:bg-gray-900/90 transition-all duration-200">
+        <div className="fixed top-0 left-0 w-full z-50 px-4 py-2 bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-all duration-200 border-b border-border">
           <div className="max-w-md mx-auto">
             <Progress value={focusProgress} className="h-2" />
-            <p className="text-white text-sm mt-1 text-center">
+            <p className="text-sm mt-1 text-center">
               {Math.floor(focusProgress)}% Complete - Stay focused!
             </p>
           </div>
@@ -151,7 +152,7 @@ const Index = () => {
 
       <div className="container mx-auto p-4 h-screen">
         <header className="flex items-center justify-between mb-6">
-          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold tracking-tight text-gradient">
             timeaify
           </h1>
           <div className="flex items-center gap-4">
@@ -164,7 +165,7 @@ const Index = () => {
                     description: "Please configure your Google Client ID first",
                   });
                 }}
-                className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+                className="bg-gradient-to-r from-primary/80 to-primary hover:from-primary hover:to-primary/80"
               >
                 Sign in with Google
               </Button>
@@ -172,11 +173,11 @@ const Index = () => {
           </div>
         </header>
 
-        <div className="grid grid-cols-2 gap-6 h-[calc(100vh-8rem)]">
-          <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6 border-0 dark:border dark:border-gray-700/50">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-[calc(100vh-8rem)]">
+          <Card className="glass-morphism p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold flex items-center gap-2">
-                <Focus className="h-5 w-5 text-purple-500" />
+                <Focus className="h-5 w-5 text-primary" />
                 Focus Mode
               </h2>
               <Button
@@ -204,7 +205,7 @@ const Index = () => {
                   <Label htmlFor="focus-mode">Enable Focus Mode</Label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Timer className="h-5 w-5 text-purple-500" />
+                  <Timer className="h-5 w-5 text-primary" />
                   <Input
                     type="number"
                     value={focusDuration}
@@ -213,13 +214,13 @@ const Index = () => {
                     min={1}
                     max={120}
                   />
-                  <span className="text-sm text-gray-500">min</span>
+                  <span className="text-sm text-muted-foreground">min</span>
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <div className="border-t border-border pt-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Lock className="h-5 w-5 text-purple-500" />
+                  <Lock className="h-5 w-5 text-primary" />
                   <h3 className="text-lg font-semibold">Block List</h3>
                 </div>
                 <div className="flex gap-2">
@@ -234,25 +235,25 @@ const Index = () => {
             </div>
           </Card>
 
-          <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6 border-0 dark:border dark:border-gray-700/50">
+          <Card className="glass-morphism p-6">
             <div className="flex items-center gap-2 mb-4">
-              <History className="h-5 w-5 text-purple-500" />
+              <History className="h-5 w-5 text-primary" />
               <h2 className="text-xl font-semibold">Focus Sessions</h2>
             </div>
             <div className="h-[calc(100%-4rem)] overflow-y-auto space-y-2">
               {focusSessions.map((session, index) => (
-                <div key={index} className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div key={index} className="p-3 bg-muted rounded-lg">
                   <p className="text-sm font-medium">
                     Session {focusSessions.length - index}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-muted-foreground">
                     Duration: {Math.round(session.duration)} minutes
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-muted-foreground">
                     Start: {session.startTime.toLocaleTimeString()}
                   </p>
                   {session.endTime && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-muted-foreground">
                       End: {session.endTime.toLocaleTimeString()}
                     </p>
                   )}
@@ -261,16 +262,16 @@ const Index = () => {
             </div>
           </Card>
 
-          <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6 border-0 dark:border dark:border-gray-700/50">
+          <Card className="glass-morphism p-6">
             <h2 className="text-xl font-semibold mb-4">Top Applications</h2>
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-lg bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
-                <h3 className="font-medium text-purple-700 dark:text-purple-300">VS Code</h3>
-                <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">2h 15m</p>
+              <div className="p-4 rounded-lg bg-muted">
+                <h3 className="font-medium text-primary">VS Code</h3>
+                <p className="text-2xl font-bold">2h 15m</p>
               </div>
-              <div className="p-4 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-                <h3 className="font-medium text-blue-700 dark:text-blue-300">Chrome</h3>
-                <p className="text-2xl font-bold text-blue-900 dark:text-blue-100">1h 45m</p>
+              <div className="p-4 rounded-lg bg-muted">
+                <h3 className="font-medium text-primary">Chrome</h3>
+                <p className="text-2xl font-bold">1h 45m</p>
               </div>
             </div>
           </Card>
@@ -281,3 +282,4 @@ const Index = () => {
 };
 
 export default Index;
+
