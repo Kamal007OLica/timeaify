@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 interface OnboardingStep {
   title: string;
   description: string;
-  icon: React.ComponentType;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 const steps: OnboardingStep[] = [
