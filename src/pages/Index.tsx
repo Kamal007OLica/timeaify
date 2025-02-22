@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -21,7 +20,6 @@ interface FocusSession {
 const Index = () => {
   const { toast } = useToast();
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [timeData, setTimeData] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [focusProgress, setFocusProgress] = useState(0);
@@ -31,16 +29,6 @@ const Index = () => {
   const [newBlockItem, setNewBlockItem] = useState("");
   const [focusSessions, setFocusSessions] = useState<FocusSession[]>([]);
   const [currentSession, setCurrentSession] = useState<FocusSession | null>(null);
-
-  const mockTimeData = [
-    { time: '09:00', productivity: 65, activity: 'Coding', duration: 55 },
-    { time: '10:00', productivity: 80, activity: 'Meeting', duration: 45 },
-    { time: '11:00', productivity: 75, activity: 'Research', duration: 35 },
-    { time: '12:00', productivity: 85, activity: 'Documentation', duration: 60 },
-    { time: '13:00', productivity: 70, activity: 'Break', duration: 15 },
-    { time: '14:00', productivity: 90, activity: 'Development', duration: 50 },
-    { time: '15:00', productivity: 85, activity: 'Code Review', duration: 40 },
-  ];
 
   useEffect(() => {
     const onboardingComplete = localStorage.getItem("onboardingComplete");
@@ -244,43 +232,6 @@ const Index = () => {
           </Card>
 
           <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6">
-            <h2 className="text-xl font-semibold mb-4">Productivity Timeline</h2>
-            <div className="h-[calc(100%-2rem)]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={mockTimeData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="time" />
-                  <YAxis />
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        const data = payload[0].payload;
-                        return (
-                          <div className="bg-white p-2 border rounded shadow-lg">
-                            <p className="font-medium">{data.activity}</p>
-                            <p>Time: {data.time}</p>
-                            <p>Duration: {data.duration}min</p>
-                            <p>Productivity: {data.productivity}%</p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Line 
-                    type="monotone"
-                    dataKey="productivity"
-                    stroke="#8884d8"
-                    strokeWidth={2}
-                    dot={{ fill: "#8884d8" }}
-                    activeDot={{ r: 8 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </Card>
-
-          <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6">
             <div className="flex items-center gap-2 mb-4">
               <History className="h-5 w-5 text-purple-500" />
               <h2 className="text-xl font-semibold">Focus Sessions</h2>
@@ -327,3 +278,4 @@ const Index = () => {
 };
 
 export default Index;
+
