@@ -75,7 +75,7 @@ export const Onboarding = ({ onComplete }: { onComplete: () => void }) => {
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
             <div className="p-3 rounded-full bg-primary/10">
-              <CurrentIcon size={24} color="hsl(var(--primary))" />
+              <CurrentIcon className="w-6 h-6 text-primary" />
             </div>
             <div className="flex-1">
               <h3 className="font-semibold text-lg">{steps[currentStep].title}</h3>

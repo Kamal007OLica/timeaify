@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Timer, Focus, Lock, History } from "lucide-react";
 import { Onboarding } from "@/components/Onboarding";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface FocusSession {
   startTime: Date;
@@ -136,7 +136,7 @@ const Index = () => {
   }, [isFocusMode, focusDuration]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300">
       {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
       {isFocusMode && (
         <div className="fixed top-0 left-0 w-full z-50 px-4 py-2 bg-gray-900/80 backdrop-blur-sm hover:bg-gray-900/90 transition-all duration-200">
@@ -154,23 +154,26 @@ const Index = () => {
           <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             timeaify
           </h1>
-          {!isAuthenticated && (
-            <Button 
-              onClick={() => {
-                toast({
-                  title: "Google Sign-In Temporarily Disabled",
-                  description: "Please configure your Google Client ID first",
-                });
-              }}
-              className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
-            >
-              Sign in with Google
-            </Button>
-          )}
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            {!isAuthenticated && (
+              <Button 
+                onClick={() => {
+                  toast({
+                    title: "Google Sign-In Temporarily Disabled",
+                    description: "Please configure your Google Client ID first",
+                  });
+                }}
+                className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600"
+              >
+                Sign in with Google
+              </Button>
+            )}
+          </div>
         </header>
 
         <div className="grid grid-cols-2 gap-6 h-[calc(100vh-8rem)]">
-          <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6">
+          <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6 border-0 dark:border dark:border-gray-700/50">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold flex items-center gap-2">
                 <Focus className="h-5 w-5 text-purple-500" />
@@ -231,7 +234,7 @@ const Index = () => {
             </div>
           </Card>
 
-          <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6">
+          <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6 border-0 dark:border dark:border-gray-700/50">
             <div className="flex items-center gap-2 mb-4">
               <History className="h-5 w-5 text-purple-500" />
               <h2 className="text-xl font-semibold">Focus Sessions</h2>
@@ -258,7 +261,7 @@ const Index = () => {
             </div>
           </Card>
 
-          <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6">
+          <Card className="backdrop-blur-lg bg-white/90 dark:bg-gray-800/90 shadow-xl rounded-xl p-6 border-0 dark:border dark:border-gray-700/50">
             <h2 className="text-xl font-semibold mb-4">Top Applications</h2>
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 rounded-lg bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
@@ -278,4 +281,3 @@ const Index = () => {
 };
 
 export default Index;
-
